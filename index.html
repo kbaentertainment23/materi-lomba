@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BELAJAR C++: MOD, DIV, DAN IF/ELSE - Media Pembelajaran Interaktif</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            200: '#bcccdc',
+                            700: '#1e3a8a',
+                            800: '#172554',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Kustomisasi Scrollbar & Animasi Halus */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .fade-in {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Highlight baris kode interaktif */
+        .code-line {
+            transition: all 0.2s ease;
+        }
+        .code-line.active-line {
+            background-color: rgba(250, 204, 21, 0.18);
+            border-left: 3px solid #facc15;
+        }
+        /* Ukuran thumb slider lebih besar agar nyaman disentuh jari di HP/Tablet */
+        input[type="range"] {
+            height: 8px;
+            border-radius: 999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+        /* Safe area untuk perangkat layar penuh / notch */
+        .pb-safe {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-200 selection:text-navy-900 flex flex-col min-h-screen overflow-x-hidden">
+
+    <!-- HEADER / TOP NAVBAR -->
+    <header class="bg-navy-900 text-white sticky top-0 z-40 shadow-md border-b border-navy-800">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-14 sm:h-16 gap-2">
+                <!-- Brand & Badge -->
+                <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer min-w-0" onclick="navigateTo(1)">
+                    <div class="bg-blue-600 p-2 rounded-xl shadow-inner border border-blue-400/30 shrink-0">
+                        <i data-lucide="terminal" class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold tracking-tight text-sm sm:text-base text-white truncate">BELAJAR C++</span>
+                            <span class="hidden sm:inline-block bg-yellow-400 text-navy-950 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">Modul Lengkap</span>
+                        </div>
+                        <p class="text-[11px] text-blue-200 truncate hidden md:block">Kuasai Mod, Div, dan Logika If/Else untuk Lomba SMP</p>
+                    </div>
+                </div>
+
+                <!-- Progress Bar Header -->
+                <div class="flex items-center gap-2.5 sm:gap-4 shrink-0">
+                    <!-- Badge persentase ringkas khusus HP -->
+                    <span id="mobile-header-percent" class="sm:hidden text-xs font-extrabold text-yellow-400 bg-navy-800 px-2.5 py-1 rounded-lg border border-navy-700">0%</span>
+
+                    <div class="hidden sm:flex flex-col items-end w-40 md:w-56">
+                        <div class="flex justify-between w-full text-xs mb-1">
+                            <span class="text-blue-200 font-medium">Progres Belajar</span>
+                            <span id="header-progress-text" class="font-bold text-yellow-400">0%</span>
+                        </div>
+                        <div class="w-full bg-navy-800 rounded-full h-2 overflow-hidden border border-navy-700">
+                            <div id="header-progress-bar" class="bg-gradient-to-r from-blue-500 to-yellow-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile & Tablet Menu Button -->
+                    <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Buka Daftar Materi" class="lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 active:bg-navy-700 text-blue-100 border border-navy-700 focus:outline-none">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                        <span class="text-xs font-semibold">Materi</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Progress Bar Strip -->
+        <div class="sm:hidden w-full bg-navy-800 h-1.5">
+            <div id="mobile-progress-bar" class="bg-yellow-400 h-1.5 transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- MAIN LAYOUT CONTAINER -->
+    <div class="flex-1 max-w-7xl w-full mx-auto flex relative">
+        
+        <!-- SIDEBAR NAVIGATION (DESKTOP & SLIDE-OVER MOBILE/TABLET) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 lg:z-30 w-72 sm:w-80 lg:w-72 max-w-[85vw] bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto transition-transform duration-300 ease-in-out flex flex-col shadow-2xl lg:shadow-none">
+            <div class="p-4 border-b border-slate-100 bg-slate-50/90 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-600">Alur Belajar Lomba</span>
+                    <span class="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100" id="sidebar-step-counter">1 / 10</span>
+                </div>
+                <!-- Tombol tutup drawer di HP & Tablet -->
+                <button onclick="toggleMobileSidebar()" aria-label="Tutup Menu" class="lg:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-200 hover:text-navy-900">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <nav id="nav-list" class="flex-1 overflow-y-auto p-3 space-y-1.5">
+                <!-- Nav items di-render oleh JavaScript -->
+            </nav>
+
+            <!-- Info Guru / Kelas -->
+            <div class="p-4 m-3 rounded-xl bg-navy-900 text-white text-xs">
+                <div class="flex items-center gap-2 text-yellow-400 font-bold mb-1">
+                    <i data-lucide="trophy" class="w-4 h-4"></i>
+                    <span>Kunci Lomba OSN SMP</span>
+                </div>
+                <p class="text-blue-200 leading-relaxed">80% soal logika dasar lomba menggunakan kombinasi <strong>DIV (/)</strong>, <strong>MOD (%)</strong>, dan <strong>IF/ELSE</strong>.</p>
+            </div>
+        </aside>
+
+        <!-- OVERLAY UNTUK MOBILE & TABLET SIDEBAR -->
+        <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-navy-950/60 z-40 hidden lg:hidden backdrop-blur-xs"></div>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 min-w-0 w-full p-3.5 sm:p-6 lg:p-8 flex flex-col justify-between">
+            <div id="page-container" class="max-w-4xl w-full mx-auto fade-in min-w-0">
+                <!-- Konten halaman dinamis di-render di sini -->
+            </div>
+
+            <!-- BOTTOM NAVIGATION CONTROLS (RESPONSIF UNTUK HP, TABLET, DESKTOP) -->
+            <div class="max-w-4xl w-full mx-auto mt-8 sm:mt-10 pt-4 sm:pt-5 pb-safe border-t border-slate-200 flex items-center justify-between gap-2 sm:gap-4">
+                <button id="btn-prev" onclick="prevPage()" class="flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-3 rounded-xl font-semibold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:pointer-events-none transition shadow-xs min-h-[44px]">
+                    <i data-lucide="arrow-left" class="w-4 h-4 shrink-0"></i>
+                    <span>Sebelumnya</span>
+                </button>
+
+                <button onclick="toggleMobileSidebar()" class="lg:hidden flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold text-navy-800 bg-slate-100 hover:bg-slate-200 border border-slate-200 min-h-[44px]" id="mobile-page-pill">
+                    <span id="mobile-page-indicator">1 / 10</span>
+                </button>
+
+                <div class="text-xs font-medium text-slate-500 hidden lg:block" id="bottom-page-indicator">
+                    Halaman 1 dari 10
+                </div>
+
+                <button id="btn-next" onclick="nextPage()" class="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 rounded-xl font-semibold text-xs sm:text-sm bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white transition shadow-sm min-h-[44px]">
+                    <span id="btn-next-text">Selanjutnya</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- CUSTOM MODAL / MESSAGE BOX (Pengganti alert) -->
+    <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-navy-950/60 backdrop-blur-xs">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 transform transition-all scale-100">
+            <div class="flex items-center gap-3 mb-3">
+                <div id="modal-icon-bg" class="p-2.5 rounded-xl bg-blue-100 text-blue-700">
+                    <i id="modal-icon" data-lucide="info" class="w-6 h-6"></i>
+                </div>
+                <h3 id="modal-title" class="text-lg font-bold text-navy-900">Informasi</h3>
+            </div>
+            <p id="modal-message" class="text-sm text-slate-600 leading-relaxed mb-6">Pesan modal.</p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold transition">
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION LOGIC -->
+    <script>
+        // ==========================================
+        // 1. STATE & DATA PEMBELAJARAN
+        // ==========================================
+        const pagesMeta = [
+            { id: 1, title: "Beranda & Peta Belajar", shortTitle: "1. Beranda", icon: "home" },
+            { id: 2, title: "Fondasi Kode & Variabel C++", shortTitle: "2. Dasar C++ & Variabel", icon: "code-2" },
+            { id: 3, title: "Input (cin) & Output (cout)", shortTitle: "3. Input & Output", icon: "arrow-left-right" },
+            { id: 4, title: "Konsep DIV (/) & MOD (%)", shortTitle: "4. Konsep DIV & MOD", icon: "divide" },
+            { id: 5, title: "Trik Soal Lomba: DIV & MOD", shortTitle: "5. Trik Soal DIV & MOD", icon: "sparkles" },
+            { id: 6, title: "Percabangan IF, ELSE IF, ELSE", shortTitle: "6. Logika IF / ELSE", icon: "git-branch" },
+            { id: 7, title: "Kombinasi MOD/DIV + IF/ELSE", shortTitle: "7. Kombinasi Lomba", icon: "layers" },
+            { id: 8, title: "Laboratorium Simulasi Kode", shortTitle: "8. Simulasi Interaktif", icon: "play-circle" },
+            { id: 9, title: "Kuis Tantangan Lomba (10 Soal)", shortTitle: "9. Kuis Pemahaman", icon: "help-circle" },
+            { id: 10, title: "Evaluasi & Kesimpulan", shortTitle: "10. Evaluasi Akhir", icon: "award" }
+        ];
+
+        // State utama aplikasi
+        let appState = {
+            currentPage: 1,
+            completedPages: [1],
+            quizAnswers: {},
+            quizSubmitted: false,
+            quizScore: 0,
+            selectedCodeLine: 0,
+            // State interaktif Halaman 4 (Visualizer DIV & MOD)
+            divModA: 17,
+            divModB: 5,
+            // State interaktif Halaman 6 (Visualizer IF/ELSE)
+            ifTestNilai: 82,
+            // State interaktif Halaman 8 (Simulasi Kode)
+            simMode: 'ganjil_genap'
+        };
+
+        // Muat state tersimpan jika ada
+        try {
+            const saved = localStorage.getItem('belajar_cpp_lengkap_v2');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                appState = { ...appState, ...parsed };
+            }
+        } catch (e) {
+            console.warn("Tidak dapat memuat state lokal:", e);
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem('belajar_cpp_lengkap_v2', JSON.stringify(appState));
+            } catch (e) {
+                console.warn("Tidak dapat menyimpan state:", e);
+            }
+        }
+
+        // Data Penjelasan Baris Kode (Halaman 2)
+        const helloWorldLines = [
+            {
+                lineNum: 1,
+                code: `<span class="text-purple-400">#include</span> <span class="text-amber-300">&lt;iostream&gt;</span>`,
+                title: "Baris 1: Pustaka Input-Output (#include <iostream>)",
+                desc: "Memanggil pustaka standar C++ agar kita bisa memakai perintah mencetak ke layar (<code>cout</code>) dan membaca input keyboard (<code>cin</code>)."
+            },
+            {
+                lineNum: 2,
+                code: `<span class="text-sky-400">using namespace</span> std;`,
+                title: "Baris 2: Ruang Nama Standar",
+                desc: "Agar kita tidak perlu mengetik <code>std::</code> berulang kali sebelum menulis <code>cout</code> atau <code>cin</code>."
+            },
+            {
+                lineNum: 3,
+                code: `<span class="text-emerald-400">int</span> <span class="text-blue-300">main</span>() {`,
+                title: "Baris 3: Fungsi Utama Program",
+                desc: "Titik awal komputer mulai membaca kode dari atas ke bawah. Tanda <code>{</code> membuka blok program."
+            },
+            {
+                lineNum: 4,
+                code: `    <span class="text-emerald-400">int</span> permen = <span class="text-orange-300">17</span>, anak = <span class="text-orange-300">5</span>;`,
+                title: "Baris 4: Deklarasi Variabel Bilangan Bulat (int)",
+                desc: "Membuat wadah penyimpanan bernama <code>permen</code> (isi 17) dan <code>anak</code> (isi 5). Tipe <code>int</code> wajib dipakai untuk operasi DIV dan MOD."
+            },
+            {
+                lineNum: 5,
+                code: `    cout &lt;&lt; permen % anak;`,
+                title: "Baris 5: Mencetak Sisa Bagi (MOD)",
+                desc: "Menghitung sisa pembagian 17 dibagi 5 (yaitu 2) dan menampilkannya ke layar."
+            },
+            {
+                lineNum: 6,
+                code: `    <span class="text-purple-400">return</span> <span class="text-orange-300">0</span>;\n}`,
+                title: "Baris 6-7: Akhir Program",
+                desc: "Menandakan program selesai dengan sukses dan menutup blok fungsi <code>main()</code>."
+            }
+        ];
+
+        // Data Tipe Data C++ (Halaman 2)
+        const dataTypesList = [
+            {
+                type: "int",
+                name: "Integer (Bilangan Bulat)",
+                desc: "Menyimpan angka bulat tanpa koma. <strong>Wajib dipakai untuk operator DIV (/) dan MOD (%).</strong>",
+                example: "int umur = 14;\nint sisa = 17 % 5; // hasil: 2",
+                color: "blue"
+            },
+            {
+                type: "double",
+                name: "Double (Bilangan Desimal)",
+                desc: "Menyimpan angka berkoma/pecahan dengan ketelitian tinggi. Dipakai jika hasil pembagian butuh koma.",
+                example: "double rataRata = 87.5;\ndouble bagi = 5.0 / 2.0; // 2.5",
+                color: "indigo"
+            },
+            {
+                type: "string",
+                name: "String (Teks / Kalimat)",
+                desc: "Menyimpan kata atau kalimat, diapit tanda petik ganda <code>\" \"</code>.",
+                example: "string status = \"GENAP\";",
+                color: "emerald"
+            },
+            {
+                type: "bool",
+                name: "Boolean (Benar / Salah)",
+                desc: "Menyimpan kondisi logika <code>true</code> (benar) atau <code>false</code> (salah) untuk syarat <code>if</code>.",
+                example: "bool lulus = true;",
+                color: "purple"
+            }
+        ];
+
+        // Data 10 Soal Kuis Tantangan Lomba (Halaman 9)
+        const quizQuestions = [
+            {
+                question: "Dalam bahasa C++, jika variabel bertipe int (bilangan bulat), berapakah hasil dari operasi 19 / 4 ?",
+                options: [
+                    "4.75",
+                    "4",
+                    "3",
+                    "5"
+                ],
+                correct: 1,
+                explanation: "Karena kedua angka bertipe int, tanda / melakukan pembagian bulat (DIV). 19 dibagi 4 adalah 4 (sisa 3 dibuang)."
+            },
+            {
+                question: "Berapakah hasil dari operasi modulo 19 % 4 dalam C++?",
+                options: [
+                    "4",
+                    "4.75",
+                    "3",
+                    "1"
+                ],
+                correct: 2,
+                explanation: "Operator % (MOD) mencari SISA pembagian. 19 dibagi 4 menghasilkan 4 (4 × 4 = 16), sehingga sisanya adalah 19 - 16 = 3."
+            },
+            {
+                question: "Berapakah hasil dari 5 % 8 dalam C++?",
+                options: [
+                    "0",
+                    "3",
+                    "5",
+                    "8"
+                ],
+                correct: 2,
+                explanation: "Jika angka di kiri lebih kecil daripada pembagi di kanan (5 < 8), hasil bagi bulatnya adalah 0 dan sisanya adalah angka itu sendiri, yaitu 5."
+            },
+            {
+                question: "Sebuah toko mengemas 260 butir telur ke dalam kotak yang masing-masing memuat tepat 12 butir. Kode C++ mana yang menghitung jumlah telur yang TERSISA di luar kotak?",
+                options: [
+                    "260 / 12",
+                    "260 % 12",
+                    "12 % 260",
+                    "260 * 12"
+                ],
+                correct: 1,
+                explanation: "260 / 12 menghasilkan banyak kotak penuh (21 kotak), sedangkan 260 % 12 menghasilkan sisa telur (8 butir)."
+            },
+            {
+                question: "Diketahui int x = 478;. Jika kita menjalankan perintah cout << x % 10; maka angka berapa yang muncul di layar?",
+                options: [
+                    "4",
+                    "47",
+                    "8",
+                    "78"
+                ],
+                correct: 2,
+                explanation: "Trik Lomba: Bilangan bulat apa pun yang di-MOD dengan 10 (x % 10) akan selalu menghasilkan DIGIT TERAKHIR (satuan), yaitu 8."
+            },
+            {
+                question: "Manakah syarat penulisan kondisi 'x adalah bilangan kelipatan 5' yang BENAR dalam struktur if C++?",
+                options: [
+                    "if (x / 5 == 0)",
+                    "if (x % 5 = 0)",
+                    "if (x % 5 == 0)",
+                    "if (x % 0 == 5)"
+                ],
+                correct: 2,
+                explanation: "Kelipatan 5 berarti jika dibagi 5 sisanya 0 (x % 5). Untuk membandingkan kesamaan di dalam if, wajib menggunakan tanda sama dengan ganda (==)."
+            },
+            {
+                question: "Perhatikan potongan kode berikut:\nint nilai = 75;\nif (nilai > 75) cout << \"LULUS\";\nelse cout << \"REMEDIAL\";\nApa output yang tampil di layar?",
+                options: [
+                    "LULUS",
+                    "REMEDIAL",
+                    "LULUS REMEDIAL",
+                    "Tidak ada output"
+                ],
+                correct: 1,
+                explanation: "Syaratnya adalah nilai > 75 (lebih besar dari 75, bukan >= 75). Karena 75 tidak lebih besar dari 75, kondisi bernilai salah sehingga blok else dijalankan (REMEDIAL)."
+            },
+            {
+                question: "Dalam bahasa C++, simbol apa yang digunakan untuk menggabungkan DUA SYARAT yang KEDUANYA HARUS BENAR (operator logika DAN)?",
+                options: [
+                    "||",
+                    "&&",
+                    "==",
+                    "!="
+                ],
+                correct: 1,
+                explanation: "Simbol && berarti DAN (AND), kedua syarat harus terpenuhi. Simbol || berarti ATAU (OR)."
+            },
+            {
+                question: "Perhatikan kode:\nint angka = 14;\nif (angka % 2 == 0) cout << \"A\";\nelse if (angka > 10) cout << \"B\";\nelse cout << \"C\";\nApa hasil outputnya?",
+                options: [
+                    "A",
+                    "B",
+                    "AB",
+                    "C"
+                ],
+                correct: 0,
+                explanation: "Pada struktur if - else if - else, komputer mengecek dari atas. Karena syarat pertama (14 % 2 == 0) sudah BENAR, komputer mencetak 'A' dan langsung melewati else if di bawahnya."
+            },
+            {
+                question: "Seorang siswa mengubah 135 menit menjadi format Jam dan Menit. Jika int total = 135;, rumus C++ mana yang paling tepat?",
+                options: [
+                    "jam = total % 60; menit = total / 60;",
+                    "jam = total / 60; menit = total % 60;",
+                    "jam = total - 60; menit = total + 60;",
+                    "jam = total / 100; menit = total % 100;"
+                ],
+                correct: 1,
+                explanation: "1 jam = 60 menit. 135 / 60 menghasilkan 2 jam penuh, dan 135 % 60 menghasilkan sisa 15 menit."
+            }
+        ];
+
+        // ==========================================
+        // 2. FUNGSI NAVIGASI & PROGRES
+        // ==========================================
+        function navigateTo(pageId) {
+            if (pageId < 1 || pageId > pagesMeta.length) return;
+            
+            appState.currentPage = pageId;
+            if (!appState.completedPages.includes(pageId)) {
+                appState.completedPages.push(pageId);
+            }
+            
+            saveState();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function nextPage() {
+            if (appState.currentPage < pagesMeta.length) {
+                navigateTo(appState.currentPage + 1);
+            }
+        }
+
+        function prevPage() {
+            if (appState.currentPage > 1) {
+                navigateTo(appState.currentPage - 1);
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ==========================================
+        // 5. RENDER HALAMAN 1 - 10
+        // ==========================================
+        function renderPageContent() {
+            const container = document.getElementById('page-container');
+            container.classList.remove('fade-in');
+            void container.offsetWidth;
+            container.classList.add('fade-in');
+
+            switch (appState.currentPage) {
+                case 1: container.innerHTML = getPage1HTML(); break;
+                case 2: container.innerHTML = getPage2HTML(); break;
+                case 3: container.innerHTML = getPage3HTML(); break;
+                case 4: container.innerHTML = getPage4HTML(); break;
+                case 5: container.innerHTML = getPage5HTML(); break;
+                case 6: container.innerHTML = getPage6HTML(); break;
+                case 7: container.innerHTML = getPage7HTML(); break;
+                case 8: container.innerHTML = getPage8HTML(); initSimulation(); break;
+                case 9: container.innerHTML = getPage9HTML(); break;
+                case 10: container.innerHTML = getPage10HTML(); break;
+            }
+            lucide.createIcons();
+        }
+
+        // --- HALAMAN 1: BERANDA ---
+        function getPage1HTML() {
+            const progress = calculateProgress();
+            return `
+                <!-- Hero Banner -->
+                <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-blue-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden mb-8 border border-blue-800/50">
+                    <div class="absolute -right-12 -top-12 w-56 h-56 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute right-8 bottom-4 opacity-10 pointer-events-none hidden sm:block">
+                        <i data-lucide="cpu" class="w-40 h-40 text-yellow-300"></i>
+                    </div>
+
+                    <div class="relative z-10 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/40 text-yellow-300 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                            <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                            <span>Persiapan Lomba Pemrograman SMP</span>
+                        </div>
+                        
+                        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight mb-3 text-white">
+                            BELAJAR C++: <span class="text-yellow-400">MOD, DIV, DAN IF/ELSE</span>
+                        </h1>
+                        
+                        <p class="text-base sm:text-lg text-blue-100 font-medium mb-4">
+                            Belajar Logika Pemrograman dari Dasar hingga Siap Mengikuti Lomba
+                        </p>
+
+                        <p class="text-sm text-blue-200/90 leading-relaxed mb-7">
+                            Media pembelajaran interaktif ini dirancang khusus untuk membimbing siswa SMP memahami <strong>dasar C++</strong>, menguasai rahasia pembagian bulat <strong>DIV (/)</strong> dan sisa bagi <strong>MOD (%)</strong>, serta membuat keputusan cerdas menggunakan <strong>IF, ELSE IF, dan ELSE</strong> melalui visualisasi interaktif!
+                        </p>
+
+                        <div class="flex flex-wrap items-center gap-4">
+                            <button onclick="navigateTo(2)" class="inline-flex items-center gap-2.5 bg-yellow-400 hover:bg-yellow-300 text-navy-950 font-extrabold px-6 py-3.5 rounded-xl shadow-lg shadow-yellow-400/20 transition transform hover:-translate-y-0.5">
+                                <i data-lucide="play" class="w-5 h-5 fill-navy-950"></i>
+                                <span>Mulai Belajar</span>
+                            </button>
+                            <button onclick="navigateTo(4)" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold px-5 py-3.5 rounded-xl transition">
+                                <i data-lucide="divide" class="w-4 h-4 text-yellow-400"></i>
+                                <span>Langsung ke DIV & MOD</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3 Pilar Utama Modul -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                    <div onclick="navigateTo(2)" class="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200 hover:border-blue-400 shadow-xs transition group">
+                        <div class="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i data-lucide="code-2" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-xs font-bold text-blue-700 uppercase mb-1">Bagian 1 (Hal. 2–3)</div>
+                        <h3 class="font-bold text-base text-navy-900 mb-1.5">Fondasi C++ & I/O</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Struktur program, variabel <code>int</code>/<code>string</code>, serta perintah <code>cin</code> dan <code>cout</code>.</p>
+                    </div>
+
+                    <div onclick="navigateTo(4)" class="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200 hover:border-amber-400 shadow-xs transition group">
+                        <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3 group-hover:bg-amber-500 group-hover:text-navy-950 transition">
+                            <i data-lucide="divide" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-xs font-bold text-amber-700 uppercase mb-1">Bagian 2 (Hal. 4–5)</div>
+                        <h3 class="font-bold text-base text-navy-900 mb-1.5">Operator DIV (/) & MOD (%)</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Visualisasi pembagian bulat & sisa bagi, konversi waktu, hingga trik mengambil digit angka.</p>
+                    </div>
+
+                    <div onclick="navigateTo(6)" class="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-400 shadow-xs transition group">
+                        <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3 group-hover:bg-emerald-600 group-hover:text-white transition">
+                            <i data-lucide="git-branch" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-xs font-bold text-emerald-700 uppercase mb-1">Bagian 3 (Hal. 6–8)</div>
+                        <h3 class="font-bold text-base text-navy-900 mb-1.5">Logika IF, ELSE IF & ELSE</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Membuat keputusan otomatis, cek ganjil/genap, kelipatan, dan simulasi soal lomba.</p>
+                    </div>
+                </div>
+
+                <!-- Peta Perjalanan & Progres -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                        <h2 class="text-lg font-bold text-navy-900 flex items-center gap-2">
+                            <i data-lucide="map" class="w-5 h-5 text-blue-600"></i>
+                            <span>Peta 10 Langkah Belajar</span>
+                        </h2>
+                        <span class="text-xs font-bold text-blue-800 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">Progres Kamu: ${progress}%</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        ${pagesMeta.slice(1).map(p => {
+                            const done = p.id === 9 ? appState.quizSubmitted : appState.completedPages.includes(p.id);
+                            return `
+                                <div onclick="navigateTo(${p.id})" class="group cursor-pointer p-3.5 rounded-xl border ${done ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 hover:border-blue-400 bg-slate-50/50 hover:bg-blue-50/40'} transition flex items-center justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <div class="text-[11px] font-bold text-blue-700">Langkah ${p.id}</div>
+                                        <div class="font-bold text-xs sm:text-sm text-navy-900 truncate group-hover:text-blue-800">${p.title}</div>
+                                    </div>
+                                    ${done ? '<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>' : '<i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-blue-600 shrink-0"></i>'}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- HALAMAN 2: FONDASI KODE & VARIABEL C++ ---
+        function selectCodeLine(index) {
+            appState.selectedCodeLine = index;
+            saveState();
+            renderPageContent();
+        }
+
+        function getPage2HTML() {
+            const activeItem = helloWorldLines[appState.selectedCodeLine] || helloWorldLines[0];
+
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Bagian 1 • Dasar C++</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Struktur Kode & Variabel C++</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Sebelum masuk ke DIV, MOD, dan IF/ELSE, pahami kerangka program dan wadah penyimpan angka (variabel).</p>
+                </div>
+
+                <!-- Interactive Code Inspector -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+                    <div class="lg:col-span-6 bg-navy-950 rounded-2xl overflow-hidden shadow-lg border border-navy-800 flex flex-col">
+                        <div class="bg-navy-900 px-4 py-3 flex items-center justify-between border-b border-navy-800">
+                            <span class="text-xs font-mono text-slate-300">struktur_dasar.cpp</span>
+                            <span class="text-[11px] text-yellow-400 font-medium">Klik baris kode</span>
+                        </div>
+                        <div class="p-4 font-mono text-xs sm:text-sm space-y-1.5 flex-1">
+                            ${helloWorldLines.map((item, idx) => {
+                                const isSelected = idx === appState.selectedCodeLine;
+                                return `
+                                    <div onclick="selectCodeLine(${idx})" class="code-line cursor-pointer px-3 py-2 rounded-lg flex items-center gap-3 ${isSelected ? 'active-line text-white' : 'text-slate-300 hover:bg-navy-900'}">
+                                        <span class="text-xs text-slate-500 select-none w-4 text-right">${item.lineNum}</span>
+                                        <code class="whitespace-pre">${item.code}</code>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 bg-white rounded-2xl p-6 border-2 border-blue-600 shadow-xs flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">Penjelasan Baris ${activeItem.lineNum}</span>
+                            <h3 class="text-lg font-bold text-navy-900 mt-2 mb-2">${activeItem.title}</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">${activeItem.desc}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100 text-xs text-amber-900 bg-amber-50 p-3 rounded-xl">
+                            <strong>Aturan Penting:</strong> Setiap perintah wajib diakhiri titik koma (<code>;</code>) dan huruf besar/kecil dibedakan (<code>int</code> berbeda dengan <code>INT</code>).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tipe Data Penting untuk Lomba -->
+                <h2 class="text-lg font-bold text-navy-900 mb-3">4 Tipe Data Utama untuk Logika & Perhitungan</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    ${dataTypesList.map(dt => `
+                        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono font-extrabold text-sm px-3 py-1 rounded-lg bg-navy-900 text-yellow-400">${dt.type}</span>
+                                <span class="text-xs font-bold text-slate-500">${dt.name}</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">${dt.desc}</p>
+                            <div class="bg-slate-900 text-slate-100 p-3 rounded-xl font-mono text-xs overflow-x-auto">
+                                <pre>${dt.example}</pre>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // --- HALAMAN 3: INPUT & OUTPUT ---
+        function getPage3HTML() {
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Bagian 1 • Dasar C++</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Input (<code class="font-mono">cin</code>) dan Output (<code class="font-mono">cout</code>)</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Dalam lomba pemrograman, soal akan memberikan data masukan (input) dan meminta jawaban keluaran (output) yang tepat.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-mono text-xl font-extrabold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200">cin &gt;&gt;</span>
+                            <span class="text-xs font-bold uppercase text-slate-400">Membaca Input</span>
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                            Membaca data yang diketik pengguna/juri dari keyboard dan menyimpannya ke dalam variabel. Perhatikan tanda panah <code>&gt;&gt;</code> mengarah <strong>masuk ke variabel</strong>.
+                        </p>
+                        <div class="bg-slate-900 text-emerald-300 font-mono text-xs p-3 rounded-xl">
+                            int angka;<br>
+                            cin &gt;&gt; angka; // menyimpan ketikan ke variabel angka
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-mono text-xl font-extrabold text-blue-700 bg-blue-50 px-3 py-1 rounded-xl border border-blue-200">cout &lt;&lt;</span>
+                            <span class="text-xs font-bold uppercase text-slate-400">Mencetak Output</span>
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                            Menampilkan tulisan atau isi variabel ke layar. Tanda panah <code>&lt;&lt;</code> mengarah <strong>keluar ke <code>cout</code></strong>. Gunakan <code>endl</code> untuk pindah baris baru.
+                        </p>
+                        <div class="bg-slate-900 text-sky-300 font-mono text-xs p-3 rounded-xl">
+                            cout &lt;&lt; "Hasilnya: " &lt;&lt; angka &lt;&lt; endl;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+                    <div class="text-xs sm:text-sm text-amber-950 leading-relaxed">
+                        <strong>Tips Lomba Pemrograman:</strong> Dalam soal lomba resmi (seperti OSN/KSN), biasanya kamu tidak perlu menulis kalimat hiasan seperti <code>cout &lt;&lt; "Masukkan angka: ";</code>. Cukup langsung baca dengan <code>cin &gt;&gt; a &gt;&gt; b;</code> dan cetak hasil akhirnya saja!
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- HALAMAN 4: KONSEP MENDALAM DIV (/) & MOD (%) + VISUALIZER INTERAKTIF ---
+        function updateDivModVisualizer(aVal, bVal) {
+            let a = parseInt(aVal, 10);
+            let b = parseInt(bVal, 10);
+            if (isNaN(a) || a < 0) a = 0;
+            if (a > 60) a = 60;
+            if (isNaN(b) || b < 1) b = 1;
+            if (b > 15) b = 15;
+            appState.divModA = a;
+            appState.divModB = b;
+            saveState();
+            renderPageContent();
+        }
+
+        function calculateProgress() {
+            const uniqueDone = new Set(appState.completedPages);
+            if (appState.quizSubmitted) {
+                uniqueDone.add(9);
+            }
+            return Math.min(100, Math.round((uniqueDone.size / pagesMeta.length) * 100));
+        }
+
+        function resetLearningProgress() {
+            appState.currentPage = 1;
+            appState.completedPages = [1];
+            appState.quizAnswers = {};
+            appState.quizSubmitted = false;
+            appState.quizScore = 0;
+            saveState();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showModal(title, message, iconName = "info") {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').innerHTML = message;
+            const iconEl = document.getElementById('modal-icon');
+            if (iconEl) iconEl.setAttribute('data-lucide', iconName);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function renderNavigation() {
+            const navList = document.getElementById('nav-list');
+            const progress = calculateProgress();
+
+            document.getElementById('header-progress-text').textContent = `${progress}%`;
+            const mobileHeaderPercent = document.getElementById('mobile-header-percent');
+            if (mobileHeaderPercent) mobileHeaderPercent.textContent = `${progress}%`;
+            document.getElementById('header-progress-bar').style.width = `${progress}%`;
+            document.getElementById('mobile-progress-bar').style.width = `${progress}%`;
+            document.getElementById('sidebar-step-counter').textContent = `${appState.currentPage} / ${pagesMeta.length}`;
+            document.getElementById('bottom-page-indicator').textContent = `Halaman ${appState.currentPage} dari ${pagesMeta.length}`;
+            const mobilePageInd = document.getElementById('mobile-page-indicator');
+            if (mobilePageInd) mobilePageInd.textContent = `Hal ${appState.currentPage}/${pagesMeta.length}`;
+
+            navList.innerHTML = pagesMeta.map(page => {
+                const isActive = appState.currentPage === page.id;
+                const isDone = page.id === 9 ? appState.quizSubmitted : appState.completedPages.includes(page.id);
+
+                let baseClasses = "w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-left text-sm font-medium transition-all ";
+                if (isActive) {
+                    baseClasses += "bg-navy-900 text-white shadow-sm";
+                } else {
+                    baseClasses += "text-slate-700 hover:bg-blue-50 hover:text-blue-800";
+                }
+
+                return `
+                    <button onclick="navigateTo(${page.id})" class="${baseClasses}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <i data-lucide="${page.icon}" class="w-4 h-4 shrink-0 ${isActive ? 'text-yellow-400' : 'text-blue-600'}"></i>
+                            <span class="truncate">${page.shortTitle}</span>
+                        </div>
+                        ${isDone ? `<i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 ${isActive ? 'text-yellow-400' : 'text-emerald-500'}"></i>` : ''}
+                    </button>
+                `;
+            }).join('');
+
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            const btnNextText = document.getElementById('btn-next-text');
+
+            btnPrev.disabled = appState.currentPage === 1;
+
+            if (appState.currentPage === pagesMeta.length) {
+                btnNext.classList.add('hidden');
+            } else {
+                btnNext.classList.remove('hidden');
+                btnNextText.textContent = appState.currentPage === 1 ? "Mulai Belajar" : "Selanjutnya";
+            }
+            document.body.style.overflow = '';
+        }
+
+        function getPage4HTML() {
+            const A = appState.divModA;
+            const B = appState.divModB;
+            const divResult = Math.floor(A / B);
+            const modResult = A % B;
+
+            let groupsHTML = '';
+            for (let g = 0; g < divResult; g++) {
+                let dots = '';
+                for (let d = 0; d < B; d++) {
+                    dots += `<span class="w-3.5 h-3.5 rounded-full bg-blue-600 inline-block"></span>`;
+                }
+                groupsHTML += `
+                    <div class="p-2.5 rounded-xl bg-blue-50 border-2 border-blue-400 flex flex-col items-center gap-1.5">
+                        <div class="flex flex-wrap justify-center gap-1 max-w-[90px]">${dots}</div>
+                        <span class="text-[10px] font-bold text-blue-800">Kantong #${g + 1}</span>
+                    </div>
+                `;
+            }
+
+            let remainderHTML = '';
+            if (modResult > 0) {
+                let remDots = '';
+                for (let r = 0; r < modResult; r++) {
+                    remDots += `<span class="w-3.5 h-3.5 rounded-full bg-amber-500 inline-block"></span>`;
+                }
+                remainderHTML = `
+                    <div class="p-2.5 rounded-xl bg-amber-50 border-2 border-dashed border-amber-500 flex flex-col items-center gap-1.5">
+                        <div class="flex flex-wrap justify-center gap-1 max-w-[90px]">${remDots}</div>
+                        <span class="text-[10px] font-bold text-amber-800">SISA (${modResult})</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-3 py-1 rounded-full">Bagian 2 • Konsep Inti</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Memahami DIV (<code class="font-mono">/</code>) dan MOD (<code class="font-mono">%</code>)</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Dua saudara kembar dalam pembagian bilangan bulat yang wajib dikuasai di luar kepala!</p>
+                </div>
+
+                <!-- Perbandingan DIV vs MOD -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Kartu DIV -->
+                    <div class="bg-white rounded-2xl p-6 border-2 border-blue-500 shadow-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-mono text-2xl font-extrabold text-white bg-blue-600 px-3.5 py-1 rounded-xl">a / b</span>
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">Operator DIV</span>
+                        </div>
+                        <h2 class="text-lg font-bold text-navy-900 mb-2">Pembagian Bilangan Bulat</h2>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                            Dalam C++, jika dua bilangan bertipe <strong><code>int</code></strong> dibagi menggunakan tanda garis miring <code>/</code>, komputer hanya mengambil <strong>HASIL BAGI BULATNYA</strong> saja. Angka di belakang koma langsung dibuang (bukan dibulatkan!).
+                        </p>
+                        <div class="bg-slate-900 text-slate-100 font-mono text-xs p-3.5 rounded-xl space-y-1">
+                            <div><span class="text-sky-400">17 / 5</span>  = <span class="text-yellow-300 font-bold">3</span>  <span class="text-slate-400">// bukan 3.4!</span></div>
+                            <div><span class="text-sky-400">23 / 4</span>  = <span class="text-yellow-300 font-bold">5</span>  <span class="text-slate-400">// bukan 5.75!</span></div>
+                            <div><span class="text-sky-400">4 / 7</span>   = <span class="text-yellow-300 font-bold">0</span>  <span class="text-slate-400">// 4 dibagi 7 tidak dapat 1 pun</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Kartu MOD -->
+                    <div class="bg-white rounded-2xl p-6 border-2 border-amber-500 shadow-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-mono text-2xl font-extrabold text-navy-950 bg-amber-400 px-3.5 py-1 rounded-xl">a % b</span>
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md">Operator MOD</span>
+                        </div>
+                        <h2 class="text-lg font-bold text-navy-900 mb-2">Sisa Hasil Pembagian (Modulo)</h2>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                            Tanda persen <code>%</code> dalam C++ <strong>bukan persentase</strong>, melainkan operator <strong>MODULO</strong> untuk mencari <strong>SISA</strong> setelah pembagian bulat dilakukan.
+                        </p>
+                        <div class="bg-slate-900 text-slate-100 font-mono text-xs p-3.5 rounded-xl space-y-1">
+                            <div><span class="text-amber-300">17 % 5</span>  = <span class="text-emerald-400 font-bold">2</span>  <span class="text-slate-400">// 17 = (3 × 5) + sisa 2</span></div>
+                            <div><span class="text-amber-300">23 % 4</span>  = <span class="text-emerald-400 font-bold">3</span>  <span class="text-slate-400">// 23 = (5 × 4) + sisa 3</span></div>
+                            <div><span class="text-amber-300">4 % 7</span>   = <span class="text-emerald-400 font-bold">4</span>  <span class="text-slate-400">// 4 = (0 × 7) + sisa 4</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Laboratorium Visual Pembagian Permen -->
+                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+                    <div class="mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Laboratorium Visual Interaktif</span>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-navy-900">Simulasi Kantong Permen: Lihat Bedanya DIV & MOD!</h2>
+                    </div>
+
+                    <!-- Kontrol Slider & Angka -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-navy-900 mb-1.5">
+                                <span>Jumlah Total Permen (<code class="text-blue-700">a</code>):</span>
+                                <span class="text-base text-blue-700 font-mono">${A}</span>
+                            </div>
+                            <input type="range" min="0" max="40" value="${A}" oninput="updateDivModVisualizer(this.value, ${B})" class="w-full accent-blue-600 cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-navy-900 mb-1.5">
+                                <span>Isi Tiap Kantong (<code class="text-amber-700">b</code>):</span>
+                                <span class="text-base text-amber-700 font-mono">${B}</span>
+                            </div>
+                            <input type="range" min="1" max="12" value="${B}" oninput="updateDivModVisualizer(${A}, this.value)" class="w-full accent-amber-500 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Hasil Perhitungan Real-time -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-blue-600 text-white p-4 rounded-2xl flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-blue-100 font-semibold">Banyak Kantong Penuh (<code class="font-mono">a / b</code>)</div>
+                                <div class="font-mono text-lg font-bold mt-0.5">${A} / ${B} = <span class="text-yellow-300 text-2xl">${divResult}</span></div>
+                            </div>
+                            <i data-lucide="package" class="w-8 h-8 text-blue-200"></i>
+                        </div>
+                        <div class="bg-amber-400 text-navy-950 p-4 rounded-2xl flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-navy-900 font-semibold">Sisa Permen di Luar (<code class="font-mono">a % b</code>)</div>
+                                <div class="font-mono text-lg font-bold mt-0.5">${A} % ${B} = <span class="text-navy-950 text-2xl underline">${modResult}</span></div>
+                            </div>
+                            <i data-lucide="sparkles" class="w-8 h-8 text-navy-800"></i>
+                        </div>
+                    </div>
+
+                    <!-- Area Gambar Kelompok Visual -->
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50">
+                        <div class="text-xs font-bold text-slate-600 mb-3">
+                            Ilustrasi: <strong>${A}</strong> permen dimasukkan ke kantong berisi masing-masing <strong>${B}</strong> permen:
+                        </div>
+                        <div class="flex flex-wrap gap-3 items-center min-h-[70px]">
+                            ${groupsHTML || '<span class="text-xs text-slate-500 italic">Tidak ada kantong yang terisi penuh (0 kantong).</span>'}
+                            ${remainderHTML}
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-200 text-xs text-slate-700 font-mono">
+                            Bukti Matematika: (${divResult} × ${B}) + ${modResult} = <strong>${(divResult * B) + modResult}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- HALAMAN 5: 4 TRIK SOAL LOMBA DENGAN DIV & MOD ---
+        function getPage5HTML() {
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-3 py-1 rounded-full">Bagian 2 • Penerapan Lomba</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">4 Rahasia DIV & MOD di Soal Lomba</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Pola soal berikut sangat sering keluar dalam kompetisi pemrograman SMP. Hafalkan polanya!</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Trik 1 -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center gap-2.5 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-navy-900 text-yellow-400 font-bold text-xs flex items-center justify-center">1</span>
+                            <h2 class="font-bold text-base text-navy-900">Cek Kelipatan / Habis Dibagi</h2>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+                            Suatu bilangan <code>x</code> disebut <strong>habis dibagi</strong> <code>k</code> (kelipatan <code>k</code>) jika dan hanya jika sisa baginya adalah <strong>0</strong>.
+                        </p>
+                        <div class="bg-slate-900 text-slate-100 p-3.5 rounded-xl font-mono text-xs leading-relaxed">
+                            <span class="text-slate-400">// Cek apakah x kelipatan 3:</span><br>
+                            x % 3 == <span class="text-emerald-400 font-bold">0</span><br><br>
+                            <span class="text-slate-400">// Cek apakah x bilangan GENAP:</span><br>
+                            x % 2 == <span class="text-emerald-400 font-bold">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Trik 2 -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center gap-2.5 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-navy-900 text-yellow-400 font-bold text-xs flex items-center justify-center">2</span>
+                            <h2 class="font-bold text-base text-navy-900">Mengambil & Membuang Digit Angka</h2>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+                            Gunakan angka <strong>10</strong>! Operasi <code>% 10</code> mengambil digit satuan terakhir, sedangkan <code>/ 10</code> menghapus digit terakhir.
+                        </p>
+                        <div class="bg-slate-900 text-slate-100 p-3.5 rounded-xl font-mono text-xs leading-relaxed">
+                            <span class="text-emerald-400">int</span> n = <span class="text-orange-300">583</span>;<br>
+                            n % 10  <span class="text-slate-400">// menghasilkan 3 (digit akhir)</span><br>
+                            n / 10  <span class="text-slate-400">// menghasilkan 58 (buang akhir)</span><br>
+                            n % 100 <span class="text-slate-400">// menghasilkan 83 (2 digit akhir)</span>
+                        </div>
+                    </div>
+
+                    <!-- Trik 3 -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center gap-2.5 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-navy-900 text-yellow-400 font-bold text-xs flex items-center justify-center">3</span>
+                            <h2 class="font-bold text-base text-navy-900">Konversi Satuan Waktu / Barang</h2>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+                            Mengubah detik menjadi Jam, Menit, dan Sisa Detik menggunakan kombinasi <code>/</code> dan <code>%</code>.
+                        </p>
+                        <div class="bg-slate-900 text-slate-100 p-3.5 rounded-xl font-mono text-xs leading-relaxed">
+                            <span class="text-emerald-400">int</span> menit = <span class="text-orange-300">145</span>;<br>
+                            <span class="text-emerald-400">int</span> jam = menit / 60;      <span class="text-slate-400">// 2 jam</span><br>
+                            <span class="text-emerald-400">int</span> sisaMenit = menit % 60; <span class="text-slate-400">// 25 menit</span>
+                        </div>
+                    </div>
+
+                    <!-- Trik 4 -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center gap-2.5 mb-3">
+                            <span class="w-7 h-7 rounded-lg bg-navy-900 text-yellow-400 font-bold text-xs flex items-center justify-center">4</span>
+                            <h2 class="font-bold text-base text-navy-900">Pola Berulang / Siklus (Hari & Jam)</h2>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+                            Jika hari ini hari ke-0 (Senin), hari ke berapakah 100 hari lagi? Karena seminggu ada 7 hari, gunakan <code>% 7</code>!
+                        </p>
+                        <div class="bg-slate-900 text-slate-100 p-3.5 rounded-xl font-mono text-xs leading-relaxed">
+                            <span class="text-emerald-400">int</span> hariNanti = (<span class="text-orange-300">0</span> + <span class="text-orange-300">100</span>) % 7;<br>
+                            <span class="text-slate-400">// 100 % 7 = 2 (2 hari setelah Senin = Rabu)</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- HALAMAN 6: LOGIKA PERCABANGAN IF, ELSE IF, ELSE ---
+        function updateIfTester(val) {
+            let n = parseInt(val, 10);
+            if (isNaN(n)) n = 0;
+            if (n < 0) n = 0;
+            if (n > 100) n = 100;
+            appState.ifTestNilai = n;
+            saveState();
+            renderPageContent();
+        }
+
+        function getPage6HTML() {
+            const nilai = appState.ifTestNilai;
+            let activeBranch = 3; // 1: >=85, 2: >=70, 3: else
+            let outputText = "PERLU REMIDI";
+            if (nilai >= 85) {
+                activeBranch = 1;
+                outputText = "MEDALI EMAS";
+            } else if (nilai >= 70) {
+                activeBranch = 2;
+                outputText = "LULUS";
+            }
+
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">Bagian 3 • Pengambilan Keputusan</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Logika Percabangan: IF, ELSE IF, dan ELSE</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Mengajarkan komputer memilih tindakan yang berbeda berdasarkan syarat tertentu.</p>
+                </div>
+
+                <!-- Operator Perbandingan & Logika -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs mb-6">
+                    <h2 class="text-base font-bold text-navy-900 mb-3 flex items-center gap-2">
+                        <i data-lucide="scale" class="w-5 h-5 text-blue-600"></i>
+                        <span>Simbol Syarat Perbandingan & Logika di C++ (Wajib Hafal!)</span>
+                    </h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-mono font-extrabold text-base text-blue-700 mb-1">==</div>
+                            <div class="font-bold text-navy-900">Sama dengan</div>
+                            <div class="text-slate-500 mt-0.5">Contoh: <code>x == 10</code> (Gunakan 2 tanda sama dengan!)</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-mono font-extrabold text-base text-rose-600 mb-1">!=</div>
+                            <div class="font-bold text-navy-900">Tidak sama dengan</div>
+                            <div class="text-slate-500 mt-0.5">Contoh: <code>x != 0</code></div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-mono font-extrabold text-base text-emerald-700 mb-1">&gt; &nbsp;&gt;=</div>
+                            <div class="font-bold text-navy-900">Lebih dari / Min</div>
+                            <div class="text-slate-500 mt-0.5"><code>&gt;=</code> artinya lebih besar atau sama dengan</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-mono font-extrabold text-base text-purple-700 mb-1">&amp;&amp; &nbsp;||</div>
+                            <div class="font-bold text-navy-900">DAN (&amp;&amp;) / ATAU (||)</div>
+                            <div class="text-slate-500 mt-0.5">Menggabungkan dua syarat sekaligus</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3 Bentuk Struktur IF -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md">1. Tunggal (if)</span>
+                        <p class="text-xs text-slate-600 mt-2 mb-3">Dijalankan hanya jika syarat benar. Jika salah, dilewati.</p>
+                        <pre class="bg-slate-900 text-slate-100 p-3 rounded-xl font-mono text-xs overflow-x-auto"><code>if (hujan == true) {
+  cout &lt;&lt; "Bawa payung";
+}</code></pre>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md">2. Dua Pilihan (if - else)</span>
+                        <p class="text-xs text-slate-600 mt-2 mb-3">Memilih satu dari dua jalan: jalan Benar atau jalan Salah.</p>
+                        <pre class="bg-slate-900 text-slate-100 p-3 rounded-xl font-mono text-xs overflow-x-auto"><code>if (umur &gt;= 17) {
+  cout &lt;&lt; "Boleh SIM";
+} else {
+  cout &lt;&lt; "Belum cukup";
+}</code></pre>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <span class="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-md">3. Banyak Pilihan (else if)</span>
+                        <p class="text-xs text-slate-600 mt-2 mb-3">Mengecek bertingkat dari atas ke bawah sampai ketemu yang benar.</p>
+                        <pre class="bg-slate-900 text-slate-100 p-3 rounded-xl font-mono text-xs overflow-x-auto"><code>if (x &gt; 0) cout &lt;&lt; "Positif";
+else if (x &lt; 0) cout &lt;&lt; "Negatif";
+else cout &lt;&lt; "Nol";</code></pre>
+                    </div>
+                </div>
+
+                <!-- SIMULATOR ALUR EKSEKUSI IF - ELSE IF - ELSE -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Tracer Alur Logika</span>
+                            <h2 class="text-lg font-extrabold text-navy-900">Lihat Jalur Mana yang Dipilih Komputer!</h2>
+                        </div>
+                        <div class="flex items-center gap-3 bg-slate-100 px-4 py-2 rounded-xl">
+                            <label class="text-xs font-bold text-navy-900">Geser Nilai Ujian (<code class="text-blue-700">nilai</code>):</label>
+                            <input type="range" min="0" max="100" value="${nilai}" oninput="updateIfTester(this.value)" class="w-28 sm:w-36 accent-blue-600 cursor-pointer">
+                            <span class="font-mono font-extrabold text-base text-blue-700 w-8 text-right">${nilai}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+                        <div class="lg:col-span-7 bg-navy-950 p-4 rounded-2xl font-mono text-xs sm:text-sm space-y-2">
+                            <div class="text-slate-300 px-3 py-1">int nilai = <span class="text-yellow-300 font-bold">${nilai}</span>;</div>
+                            
+                            <!-- Cabang 1 -->
+                            <div class="p-3 rounded-xl border transition ${activeBranch === 1 ? 'bg-emerald-950/90 border-emerald-400 text-white' : 'border-navy-800 text-slate-500'}">
+                                <div class="flex justify-between">
+                                    <span><span class="text-purple-400">if</span> (nilai &gt;= 85) {</span>
+                                    <span class="text-[11px] font-bold ${nilai >= 85 ? 'text-emerald-400' : 'text-rose-400'}">${nilai >= 85 ? '✓ BENAR' : '✗ SALAH'}</span>
+                                </div>
+                                <div class="pl-4">cout &lt;&lt; "MEDALI EMAS";</div>
+                                <div>}</div>
+                            </div>
+
+                            <!-- Cabang 2 -->
+                            <div class="p-3 rounded-xl border transition ${activeBranch === 2 ? 'bg-emerald-950/90 border-emerald-400 text-white' : 'border-navy-800 text-slate-500'}">
+                                <div class="flex justify-between">
+                                    <span><span class="text-purple-400">else if</span> (nilai &gt;= 70) {</span>
+                                    <span class="text-[11px] font-bold ${activeBranch === 1 ? 'text-slate-500' : (nilai >= 70 ? 'text-emerald-400' : 'text-rose-400')}">
+                                        ${activeBranch === 1 ? '(Dilewati)' : (nilai >= 70 ? '✓ BENAR' : '✗ SALAH')}
+                                    </span>
+                                </div>
+                                <div class="pl-4">cout &lt;&lt; "LULUS";</div>
+                                <div>}</div>
+                            </div>
+
+                            <!-- Cabang 3 -->
+                            <div class="p-3 rounded-xl border transition ${activeBranch === 3 ? 'bg-emerald-950/90 border-emerald-400 text-white' : 'border-navy-800 text-slate-500'}">
+                                <div class="flex justify-between">
+                                    <span><span class="text-purple-400">else</span> {</span>
+                                    <span class="text-[11px] font-bold ${activeBranch === 3 ? 'text-emerald-400' : 'text-slate-500'}">${activeBranch === 3 ? '✓ DIJALANKAN' : '(Dilewati)'}</span>
+                                </div>
+                                <div class="pl-4">cout &lt;&lt; "PERLU REMIDI";</div>
+                                <div>}</div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-5 bg-slate-900 text-white p-5 rounded-2xl border border-slate-800">
+                            <div class="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-2">Hasil Layar (Output):</div>
+                            <div class="font-mono text-xl font-extrabold text-emerald-400 bg-black/50 p-4 rounded-xl mb-3">
+                                ${outputText}
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                <strong>Penjelasan:</strong> Komputer selalu memeriksa dari syarat paling atas. Begitu menemukan satu syarat yang <strong>BENAR</strong>, blok itu dijalankan dan sisa <code>else if</code> / <code>else</code> di bawahnya langsung dilewati!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- HALAMAN 7: KOMBINASI MOD/DIV + IF/ELSE DALAM SOAL LOMBA ---
+        function getPage7HTML() {
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Bagian 4 • Studi Kasus Lomba</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Kombinasi MOD, DIV, dan IF/ELSE</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Pelajari bagaimana 3 contoh soal lomba OSN/KSN SMP diselesaikan dengan menggabungkan MOD, DIV, dan IF/ELSE.</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Studi Kasus 1: Ganjil Genap & Positif Negatif -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 rounded-md bg-blue-600 text-white font-bold text-xs">Studi Kasus 1</span>
+                            <h2 class="font-bold text-base sm:text-lg text-navy-900">Menentukan Bilangan Genap atau Ganjil</h2>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-4">
+                            <strong>Logika:</strong> Semua bilangan genap jika dibagi 2 pasti bersisa <code>0</code> (<code>n % 2 == 0</code>). Jika sisanya bukan 0, maka bilangan tersebut ganjil.
+                        </p>
+                        <pre class="bg-navy-950 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed"><code><span class="text-emerald-400">int</span> n;
+cin &gt;&gt; n;
+<span class="text-purple-400">if</span> (n % 2 == 0) {
+    cout &lt;&lt; <span class="text-amber-300">"GENAP"</span> &lt;&lt; endl;
+} <span class="text-purple-400">else</span> {
+    cout &lt;&lt; <span class="text-amber-300">"GANJIL"</span> &lt;&lt; endl;
+}</code></pre>
+                    </div>
+
+                    <!-- Studi Kasus 2: Tahun Kabisat -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 rounded-md bg-amber-500 text-navy-950 font-bold text-xs">Studi Kasus 2</span>
+                            <h2 class="font-bold text-base sm:text-lg text-navy-900">Cek Tahun Kabisat (Soal Klasik Olimpiade!)</h2>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-4">
+                            <strong>Aturan Kabisat:</strong> Suatu tahun adalah kabisat jika <strong>habis dibagi 400</strong>, ATAU (<strong>habis dibagi 4</strong> DAN <strong>tidak habis dibagi 100</strong>).
+                        </p>
+                        <pre class="bg-navy-950 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed"><code><span class="text-emerald-400">int</span> tahun;
+cin &gt;&gt; tahun;
+<span class="text-purple-400">if</span> ((tahun % 400 == 0) || (tahun % 4 == 0 &amp;&amp; tahun % 100 != 0)) {
+    cout &lt;&lt; <span class="text-amber-300">"TAHUN KABISAT"</span> &lt;&lt; endl;
+} <span class="text-purple-400">else</span> {
+    cout &lt;&lt; <span class="text-amber-300">"BUKAN KABISAT"</span> &lt;&lt; endl;
+}</code></pre>
+                    </div>
+
+                    <!-- Studi Kasus 3: Pembulatan Kebutuhan Bus dengan DIV & MOD -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 rounded-md bg-emerald-600 text-white font-bold text-xs">Studi Kasus 3</span>
+                            <h2 class="font-bold text-base sm:text-lg text-navy-900">Menghitung Jumlah Bus Pariwisata (Kombinasi DIV + MOD + IF)</h2>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-4">
+                            <strong>Soal:</strong> Ada <code>siswa</code> yang akan berdarmawisata. Satu bus muat maksimal <code>40</code> orang. Berapa bus yang harus disewa? Jika ada sisa siswa (<code>siswa % 40 &gt; 0</code>), maka harus tambah 1 bus lagi!
+                        </p>
+                        <pre class="bg-navy-950 text-slate-100 p-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed"><code><span class="text-emerald-400">int</span> siswa;
+cin &gt;&gt; siswa;
+
+<span class="text-emerald-400">int</span> jumlahBus = siswa / 40; <span class="text-slate-400">// bus yang terisi penuh</span>
+<span class="text-purple-400">if</span> (siswa % 40 &gt; 0) {
+    jumlahBus = jumlahBus + 1; <span class="text-slate-400">// tambah 1 bus jika ada sisa siswa</span>
+}
+cout &lt;&lt; jumlahBus &lt;&lt; endl;</code></pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- HALAMAN 8: LABORATORIUM SIMULASI KODE INTERAKTIF ---
+        function setSimMode(mode) {
+            appState.simMode = mode;
+            saveState();
+            renderPageContent();
+        }
+
+        function getPage8HTML() {
+            const mode = appState.simMode;
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Praktik Langsung</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Laboratorium Simulasi Kode C++</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Pilih kasus lomba di bawah ini, ubah input angkanya, dan lihat bagaimana program mengeksekusinya!</p>
+                </div>
+
+                <!-- Pilihan Template Program -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-5">
+                    <button onclick="setSimMode('ganjil_genap')" class="px-3.5 py-3 rounded-xl text-xs sm:text-sm font-bold text-left sm:text-center transition min-h-[44px] ${mode === 'ganjil_genap' ? 'bg-navy-900 text-yellow-400 shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
+                        1. Ganjil/Genap & Kelipatan 5
+                    </button>
+                    <button onclick="setSimMode('konversi_waktu')" class="px-3.5 py-3 rounded-xl text-xs sm:text-sm font-bold text-left sm:text-center transition min-h-[44px] ${mode === 'konversi_waktu' ? 'bg-navy-900 text-yellow-400 shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
+                        2. Konversi Detik (DIV & MOD)
+                    </button>
+                    <button onclick="setSimMode('sewa_bus')" class="px-3.5 py-3 rounded-xl text-xs sm:text-sm font-bold text-left sm:text-center transition min-h-[44px] ${mode === 'sewa_bus' ? 'bg-navy-900 text-yellow-400 shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
+                        3. Hitung Bus (DIV + MOD + IF)
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+                    <!-- Panel Kiri: Kode C++ -->
+                    <div class="lg:col-span-7 bg-navy-950 rounded-2xl overflow-hidden border border-navy-800 shadow-lg flex flex-col min-w-0">
+                        <div class="bg-navy-900 px-4 py-3 flex items-center justify-between border-b border-navy-800">
+                            <span class="text-xs font-mono text-blue-200">solusi_lomba.cpp</span>
+                            <span class="text-[11px] bg-blue-900/60 text-blue-300 px-2.5 py-0.5 rounded-md border border-blue-700/50">C++17</span>
+                        </div>
+                        <div id="sim-code-display" class="p-4 sm:p-5 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto leading-relaxed flex-1">
+                        </div>
+                    </div>
+
+                    <!-- Panel Kanan: Kontrol Input & Console Output -->
+                    <div class="lg:col-span-5 flex flex-col gap-4 min-w-0">
+                        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+                            <h3 class="text-sm font-bold text-navy-900 mb-3 flex items-center gap-2">
+                                <i data-lucide="keyboard" class="w-4 h-4 text-blue-600"></i>
+                                <span>Masukkan Input Test Case:</span>
+                            </h3>
+                            <div id="sim-inputs-area" class="space-y-3">
+                            </div>
+                            <button onclick="runSimulation()" class="mt-4 w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3.5 px-4 rounded-xl shadow-sm transition min-h-[48px]">
+                                <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+                                <span>Jalankan Program</span>
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-inner flex-1 flex flex-col">
+                            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
+                                <span class="text-xs font-bold uppercase tracking-wider text-yellow-400 flex items-center gap-1.5">
+                                    <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+                                    <span>Hasil Output Program</span>
+                                </span>
+                                <span id="sim-status" class="text-[11px] text-slate-400">Siap dijalankan</span>
+                            </div>
+                            <div id="sim-console-output" class="font-mono text-xs sm:text-sm text-emerald-400 whitespace-pre-wrap leading-relaxed min-h-[115px]">
+                                Ubah angka input di atas lalu klik "Jalankan Program"...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initSimulation() {
+            const codeDisplay = document.getElementById('sim-code-display');
+            const inputsArea = document.getElementById('sim-inputs-area');
+            if (!codeDisplay || !inputsArea) return;
+
+            if (appState.simMode === 'ganjil_genap') {
+                codeDisplay.innerHTML = `<pre><code><span class="text-purple-400">#include</span> <span class="text-amber-300">&lt;iostream&gt;</span>
+<span class="text-sky-400">using namespace</span> std;
+
+<span class="text-emerald-400">int</span> main() {
+    <span class="text-emerald-400">int</span> n;
+    cin &gt;&gt; n;
+
+    <span class="text-purple-400">if</span> (n % 2 == 0) cout &lt;&lt; <span class="text-amber-300">"Bilangan GENAP"</span> &lt;&lt; endl;
+    <span class="text-purple-400">else</span> cout &lt;&lt; <span class="text-amber-300">"Bilangan GANJIL"</span> &lt;&lt; endl;
+
+    <span class="text-purple-400">if</span> (n % 5 == 0) cout &lt;&lt; <span class="text-amber-300">"Kelipatan 5: YA"</span> &lt;&lt; endl;
+    <span class="text-purple-400">else</span> cout &lt;&lt; <span class="text-amber-300">"Kelipatan 5: TIDAK"</span> &lt;&lt; endl;
+
+    <span class="text-purple-400">return</span> <span class="text-orange-300">0</span>;
+}</code></pre>`;
+
+                inputsArea.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Masukkan bilangan bulat <code class="text-blue-700">n</code>:</label>
+                        <input type="number" id="sim-in-n" value="25" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 font-mono">
+                    </div>
+                `;
+            } else if (appState.simMode === 'konversi_waktu') {
+                codeDisplay.innerHTML = `<pre><code><span class="text-purple-400">#include</span> <span class="text-amber-300">&lt;iostream&gt;</span>
+<span class="text-sky-400">using namespace</span> std;
+
+<span class="text-emerald-400">int</span> main() {
+    <span class="text-emerald-400">int</span> totalDetik;
+    cin &gt;&gt; totalDetik;
+
+    <span class="text-emerald-400">int</span> jam = totalDetik / 3600;
+    <span class="text-emerald-400">int</span> sisa = totalDetik % 3600;
+    <span class="text-emerald-400">int</span> menit = sisa / 60;
+    <span class="text-emerald-400">int</span> detik = sisa % 60;
+
+    cout &lt;&lt; jam &lt;&lt; <span class="text-amber-300">" Jam, "</span> &lt;&lt; menit &lt;&lt; <span class="text-amber-300">" Menit, "</span> &lt;&lt; detik &lt;&lt; <span class="text-amber-300">" Detik"</span>;
+    <span class="text-purple-400">return</span> <span class="text-orange-300">0</span>;
+}</code></pre>`;
+
+                inputsArea.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Masukkan <code class="text-blue-700">totalDetik</code>:</label>
+                        <input type="number" id="sim-in-detik" value="3725" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 font-mono">
+                    </div>
+                `;
+            } else {
+                codeDisplay.innerHTML = `<pre><code><span class="text-purple-400">#include</span> <span class="text-amber-300">&lt;iostream&gt;</span>
+<span class="text-sky-400">using namespace</span> std;
+
+<span class="text-emerald-400">int</span> main() {
+    <span class="text-emerald-400">int</span> siswa, kapasitas;
+    cin &gt;&gt; siswa &gt;&gt; kapasitas;
+
+    <span class="text-emerald-400">int</span> bus = siswa / kapasitas;
+    <span class="text-purple-400">if</span> (siswa % kapasitas &gt; 0) {
+        bus = bus + 1;
+    }
+
+    cout &lt;&lt; <span class="text-amber-300">"Jumlah bus dibutuhkan: "</span> &lt;&lt; bus;
+    <span class="text-purple-400">return</span> <span class="text-orange-300">0</span>;
+}</code></pre>`;
+
+                inputsArea.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah <code class="text-blue-700">siswa</code>:</label>
+                        <input type="number" id="sim-in-siswa" value="95" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1"><code class="text-blue-700">kapasitas</code> per bus:</label>
+                        <input type="number" id="sim-in-kapasitas" value="40" min="1" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 font-mono">
+                    </div>
+                `;
+            }
+        }
+
+        function runSimulation() {
+            const outputBox = document.getElementById('sim-console-output');
+            const statusEl = document.getElementById('sim-status');
+            
+            statusEl.textContent = "Menjalankan...";
+            statusEl.className = "text-[11px] text-yellow-400 font-semibold";
+
+            setTimeout(() => {
+                if (appState.simMode === 'ganjil_genap') {
+                    const n = parseInt(document.getElementById('sim-in-n').value, 10) || 0;
+                    const line1 = (n % 2 === 0) ? "Bilangan GENAP" : "Bilangan GANJIL";
+                    const line2 = (n % 5 === 0) ? "Kelipatan 5: YA" : "Kelipatan 5: TIDAK";
+
+                    outputBox.innerHTML = `${line1}\n${line2}\n\n<span class="text-slate-400 text-xs">[Trace]: ${n} % 2 = ${Math.abs(n % 2)}, ${n} % 5 = ${Math.abs(n % 5)}</span>`;
+                } else if (appState.simMode === 'konversi_waktu') {
+                    const total = Math.max(0, parseInt(document.getElementById('sim-in-detik').value, 10) || 0);
+                    const jam = Math.floor(total / 3600);
+                    const sisa = total % 3600;
+                    const menit = Math.floor(sisa / 60);
+                    const detik = sisa % 60;
+
+                    outputBox.innerHTML = `${jam} Jam, ${menit} Menit, ${detik} Detik\n\n<span class="text-slate-400 text-xs">[Trace]: ${total} / 3600 = ${jam} jam, sisa ${sisa} detik</span>`;
+                } else {
+                    const siswa = Math.max(0, parseInt(document.getElementById('sim-in-siswa').value, 10) || 0);
+                    const kap = Math.max(1, parseInt(document.getElementById('sim-in-kapasitas').value, 10) || 40);
+                    let bus = Math.floor(siswa / kap);
+                    const sisaSiswa = siswa % kap;
+                    if (sisaSiswa > 0) bus += 1;
+
+                    outputBox.innerHTML = `Jumlah bus dibutuhkan: ${bus}\n\n<span class="text-slate-400 text-xs">[Trace]: ${siswa} / ${kap} = ${Math.floor(siswa / kap)} bus penuh, sisa ${sisaSiswa} siswa (${sisaSiswa > 0 ? '+1 bus tambahan' : 'pas penuh'})</span>`;
+                }
+
+                statusEl.textContent = "Sukses (Exit Code 0)";
+                statusEl.className = "text-[11px] text-emerald-400 font-semibold";
+            }, 160);
+        }
+
+        // --- HALAMAN 9: KUIS TANTANGAN LOMBA (10 SOAL) ---
+        function selectQuizOption(qIdx, optIdx) {
+            if (appState.quizSubmitted) return;
+            appState.quizAnswers[qIdx] = optIdx;
+            saveState();
+            renderPageContent();
+        }
+
+        function submitQuiz() {
+            const answeredCount = Object.keys(appState.quizAnswers).length;
+            if (answeredCount < quizQuestions.length) {
+                showModal(
+                    "Jawaban Belum Lengkap",
+                    `Kamu baru menjawab <strong>${answeredCount} dari ${quizQuestions.length} soal</strong>. Silakan lengkapi semua jawaban terlebih dahulu!`,
+                    "alert-circle"
+                );
+                return;
+            }
+
+            let correctCount = 0;
+            quizQuestions.forEach((q, idx) => {
+                if (appState.quizAnswers[idx] === q.correct) {
+                    correctCount++;
+                }
+            });
+
+            appState.quizScore = correctCount * 10;
+            appState.quizSubmitted = true;
+            if (!appState.completedPages.includes(9)) {
+                appState.completedPages.push(9);
+            }
+            saveState();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function retakeQuiz() {
+            appState.quizAnswers = {};
+            appState.quizSubmitted = false;
+            appState.quizScore = 0;
+            saveState();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function getPage9HTML() {
+            const answeredCount = Object.keys(appState.quizAnswers).length;
+            const correctTotal = appState.quizScore / 10;
+
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Evaluasi Lomba</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Kuis Tantangan: DIV, MOD & IF/ELSE</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Uji ketajaman logikamu mengerjakan 10 soal latihan persiapan lomba pemrograman SMP.</p>
+                </div>
+
+                ${appState.quizSubmitted ? `
+                    <div class="bg-gradient-to-r from-navy-900 to-blue-900 text-white rounded-2xl p-6 mb-8 shadow-lg border border-blue-700 flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-1">Hasil Kuis Kamu</div>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold mb-1">Skor Akhir: ${appState.quizScore} / 100</h2>
+                            <p class="text-sm text-blue-100">
+                                Kamu menjawab benar <strong>${correctTotal}</strong> dari <strong>${quizQuestions.length}</strong> soal.
+                                ${appState.quizScore >= 80 ? 'Hebat! Kamu sudah menguasai logika DIV, MOD, dan IF/ELSE.' : 'Pelajari pembahasan di bawah ini untuk memperdalam pemahamanmu!'}
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap gap-3 shrink-0">
+                            <button onclick="retakeQuiz()" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-sm font-semibold border border-white/20 transition">
+                                Ulangi Kuis
+                            </button>
+                            <button onclick="navigateTo(10)" class="px-5 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-navy-950 text-sm font-extrabold transition">
+                                Lihat Evaluasi Akhir
+                            </button>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 mb-6 flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-600">Soal Terjawab: <strong class="text-navy-900">${answeredCount} / ${quizQuestions.length}</strong></span>
+                        <span class="text-xs text-blue-700 font-semibold bg-blue-50 px-3 py-1 rounded-full">Pilih 1 jawaban tiap soal</span>
+                    </div>
+                `}
+
+                <div class="space-y-6">
+                    ${quizQuestions.map((q, qIdx) => {
+                        const userAns = appState.quizAnswers[qIdx];
+                        const isCorrect = userAns === q.correct;
+
+                        return `
+                            <div class="bg-white rounded-2xl p-5 sm:p-6 border ${appState.quizSubmitted ? (isCorrect ? 'border-emerald-300' : 'border-rose-300') : 'border-slate-200'} shadow-xs">
+                                <div class="flex items-start gap-3 mb-4">
+                                    <span class="w-7 h-7 rounded-lg bg-navy-900 text-yellow-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">${qIdx + 1}</span>
+                                    <h3 class="font-bold text-sm sm:text-base text-navy-900 leading-snug whitespace-pre-line">${q.question}</h3>
+                                </div>
+
+                                <div class="space-y-2.5 pl-0 sm:pl-10">
+                                    ${q.options.map((opt, optIdx) => {
+                                        const isSelected = userAns === optIdx;
+                                        const isRightOption = q.correct === optIdx;
+                                        const letters = ['A', 'B', 'C', 'D'];
+
+                                        let btnStyle = "border-slate-200 hover:border-blue-400 hover:bg-blue-50/40 text-slate-700";
+                                        let badgeStyle = "bg-slate-100 text-slate-600";
+
+                                        if (!appState.quizSubmitted) {
+                                            if (isSelected) {
+                                                btnStyle = "border-blue-600 bg-blue-50 text-navy-900 font-semibold ring-1 ring-blue-600";
+                                                badgeStyle = "bg-blue-600 text-white";
+                                            }
+                                        } else {
+                                            if (isRightOption) {
+                                                btnStyle = "border-emerald-500 bg-emerald-50 text-emerald-950 font-semibold";
+                                                badgeStyle = "bg-emerald-600 text-white";
+                                            } else if (isSelected && !isRightOption) {
+                                                btnStyle = "border-rose-500 bg-rose-50 text-rose-950";
+                                                badgeStyle = "bg-rose-600 text-white";
+                                            } else {
+                                                btnStyle = "border-slate-200 opacity-60 text-slate-500";
+                                            }
+                                        }
+
+                                        return `
+                                            <button onclick="selectQuizOption(${qIdx}, ${optIdx})" ${appState.quizSubmitted ? 'disabled' : ''} class="w-full text-left p-3.5 rounded-xl border transition flex items-center gap-3 text-xs sm:text-sm ${btnStyle}">
+                                                <span class="w-6 h-6 rounded-md font-bold text-xs flex items-center justify-center shrink-0 ${badgeStyle}">${letters[optIdx]}</span>
+                                                <span class="flex-1 font-mono sm:font-sans">${opt}</span>
+                                                ${appState.quizSubmitted && isRightOption ? '<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>' : ''}
+                                                ${appState.quizSubmitted && isSelected && !isRightOption ? '<i data-lucide="x-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>' : ''}
+                                            </button>
+                                        `;
+                                    }).join('')}
+                                </div>
+
+                                ${appState.quizSubmitted ? `
+                                    <div class="mt-4 sm:ml-10 p-3.5 rounded-xl text-xs sm:text-sm ${isCorrect ? 'bg-emerald-50/80 text-emerald-900 border border-emerald-200' : 'bg-amber-50 text-amber-950 border border-amber-200'}">
+                                        <div class="font-bold mb-1">
+                                            ${isCorrect ? '<span class="text-emerald-700">✓ Jawaban Benar!</span>' : '<span class="text-rose-700">✗ Jawaban Kurang Tepat</span>'}
+                                        </div>
+                                        <p class="leading-relaxed"><strong>Pembahasan:</strong> ${q.explanation}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                ${!appState.quizSubmitted ? `
+                    <div class="mt-8 flex justify-end">
+                        <button onclick="submitQuiz()" class="inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-7 py-3.5 rounded-xl shadow-md transition">
+                            <i data-lucide="check-square" class="w-5 h-5"></i>
+                            <span>Periksa Jawaban & Lihat Skor</span>
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // --- HALAMAN 10: EVALUASI DAN KESIMPULAN AKHIR ---
+        function getPage10HTML() {
+            const progress = calculateProgress();
+            const predicate = !appState.quizSubmitted 
+                ? "Belum Ada Nilai" 
+                : appState.quizScore >= 80 
+                    ? "Siap Bertanding OSN! (A)" 
+                    : appState.quizScore >= 60 
+                        ? "Kompeten (B)" 
+                        : "Perlu Latihan Ulang (C)";
+
+            return `
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Rangkuman & Evaluasi</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 mt-2">Evaluasi & Kesimpulan Belajar</h1>
+                    <p class="text-slate-600 text-sm sm:text-base mt-1">Rekap seluruh materi C++, DIV, MOD, dan IF/ELSE yang telah kamu pelajari.</p>
+                </div>
+
+                <!-- Kartu Hasil Belajar -->
+                <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-blue-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-6 border border-blue-700/50">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                        <div class="md:col-span-2">
+                            <div class="inline-flex items-center gap-2 bg-yellow-400/20 text-yellow-300 px-3 py-1 rounded-full text-xs font-bold mb-3">
+                                <i data-lucide="trophy" class="w-4 h-4"></i>
+                                <span>Sertifikat Penyelesaian Modul</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-extrabold mb-2">Selamat! Kamu Telah Menuntaskan Modul Ini!</h2>
+                            <p class="text-sm text-blue-100 leading-relaxed mb-5">
+                                Kamu telah mempelajari pondasi penting logika pemrograman C++. Teruslah berlatih memecahkan soal cerita menggunakan kombinasi <strong>DIV (/)</strong>, <strong>MOD (%)</strong>, dan <strong>IF/ELSE</strong> agar semakin mahir!
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="resetLearningProgress()" class="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl border border-white/20 transition">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                    <span>Ulangi Materi dari Awal</span>
+                                </button>
+                                <button onclick="navigateTo(8)" class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-navy-950 text-xs sm:text-sm font-extrabold px-5 py-2.5 rounded-xl shadow-md transition">
+                                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                                    <span>Kembali ke Simulasi Kode</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-navy-950/70 rounded-2xl p-5 border border-blue-700/40 text-center">
+                            <div class="text-xs text-blue-300 uppercase font-bold tracking-wider mb-1">Nilai Kuis Lomba</div>
+                            <div class="text-4xl font-extrabold text-yellow-400 mb-1">${appState.quizSubmitted ? appState.quizScore : '-'}</div>
+                            <div class="text-xs font-semibold text-emerald-400 mb-3">${predicate}</div>
+                            <div class="text-[11px] text-slate-400 border-t border-navy-800 pt-2">
+                                Progres Modul: <strong class="text-white">${progress}%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Materi Inti -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <h3 class="text-base font-bold text-navy-900 mb-3 flex items-center gap-2">
+                            <i data-lucide="book-open-check" class="w-5 h-5 text-blue-600"></i>
+                            <span>Intisari Materi C++ Lomba</span>
+                        </h3>
+                        <ul class="space-y-2.5 text-sm text-slate-600">
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold text-blue-700">•</span>
+                                <span><strong>DIV (<code>a / b</code>):</strong> Pembagian bilangan bulat (<code>int</code>) yang membuang angka di belakang koma.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold text-blue-700">•</span>
+                                <span><strong>MOD (<code>a % b</code>):</strong> Menghitung <strong>sisa hasil bagi</strong>. Sangat berguna untuk cek kelipatan (<code>% k == 0</code>), ganjil/genap (<code>% 2</code>), dan digit terakhir (<code>% 10</code>).</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold text-blue-700">•</span>
+                                <span><strong>Percabangan (<code>if / else if / else</code>):</strong> Memilih blok kode yang dijalankan berdasarkan syarat logika (<code>==</code>, <code>!=</code>, <code>&gt;=</code>, <code>&amp;&amp;</code>, <code>||</code>).</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                        <h3 class="text-base font-bold text-navy-900 mb-3 flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                            <span>Kompetensi yang Telah Dikuasai</span>
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs sm:text-sm text-emerald-950 flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                                <span>Membedakan hasil operasi <code>/</code> (DIV) dan <code>%</code> (MOD) pada bilangan bulat</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs sm:text-sm text-emerald-950 flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                                <span>Menerapkan trik MOD & DIV untuk konversi satuan dan digit angka</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs sm:text-sm text-emerald-950 flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                                <span>Menyusun logika keputusan bertingkat dengan <code>if</code>, <code>else if</code>, dan <code>else</code></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 6. INISIALISASI SAAT HALAMAN DIMUAT
+        // ==========================================
+        function renderAll() {
+            renderNavigation();
+            renderPageContent();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
+    </script>
+</body>
+</html>
