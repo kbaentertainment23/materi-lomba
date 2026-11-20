@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Belajar C++">
+    <meta name="description" content="Media Pembelajaran Interaktif C++: Mod, Div, dan If/Else untuk Siswa SMP">
+    <link id="pwa-manifest-link" rel="manifest">
+    <link id="pwa-favicon" rel="icon" type="image/png">
+    <link id="pwa-apple-icon" rel="apple-touch-icon">
     <title>BELAJAR C++: MOD, DIV, DAN IF/ELSE - Media Pembelajaran Interaktif</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -109,6 +117,12 @@
 
                 <!-- Progress Bar Header -->
                 <div class="flex items-center gap-2.5 sm:gap-4 shrink-0">
+                    <!-- Tombol Install PWA (Muncul otomatis jika didukung / bisa diklik untuk panduan) -->
+                    <button id="pwa-install-btn" onclick="triggerPWAInstall()" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 active:bg-yellow-500 text-navy-950 font-extrabold text-xs shadow-sm transition cursor-pointer">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Install App</span>
+                    </button>
+
                     <!-- Badge persentase ringkas khusus HP -->
                     <span id="mobile-header-percent" class="sm:hidden text-xs font-extrabold text-yellow-400 bg-navy-800 px-2.5 py-1 rounded-lg border border-navy-700">0%</span>
 
@@ -1731,12 +1745,234 @@ cout &lt;&lt; jumlahBus &lt;&lt; endl;</code></pre>
         // ==========================================
         // 6. INISIALISASI SAAT HALAMAN DIMUAT
         // ==========================================
+        let deferredInstallPrompt = null;
+
+        /**
+         * Membuat ikon aplikasi C++ beresolusi tinggi (192x192 & 512x512)
+         * menggunakan HTML5 Canvas sehingga manifest & shortcut selalu memiliki
+         * logo C++ resmi bergaya emblem segi enam biru navy & aksen kuning.
+         */
+        function generateCppLogoDataURL(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // 1. Latar Belakang Rounded Square Navy
+            const radius = size * 0.22;
+            const gradBg = ctx.createLinearGradient(0, 0, size, size);
+            gradBg.addColorStop(0, '#1e3a8a');
+            gradBg.addColorStop(1, '#0f172a');
+
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fillStyle = gradBg;
+            ctx.fill();
+
+            // 2. Bingkai Aksen Kuning Tipis
+            ctx.lineWidth = size * 0.025;
+            ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
+            ctx.stroke();
+
+            // 3. Emblem Hexagon Khas Logo C++
+            const cx = size / 2;
+            const cy = size / 2;
+            const hexR = size * 0.36;
+            const hexGrad = ctx.createLinearGradient(cx - hexR, cy - hexR, cx + hexR, cy + hexR);
+            hexGrad.addColorStop(0, '#3b82f6');
+            hexGrad.addColorStop(1, '#1d4ed8');
+
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i - Math.PI / 2;
+                const x = cx + hexR * Math.cos(angle);
+                const y = cy + hexR * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = hexGrad;
+            ctx.fill();
+            ctx.lineWidth = size * 0.02;
+            ctx.strokeStyle = '#93c5fd';
+            ctx.stroke();
+
+            // 4. Huruf "C" Putih Tebal di Kiri Tengah
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `900 ${Math.round(size * 0.34)}px "Plus Jakarta Sans", Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('C', cx - size * 0.09, cy + size * 0.015);
+
+            // 5. Tanda "++" Berwarna Kuning Emas di Kanan
+            ctx.fillStyle = '#facc15';
+            ctx.font = `900 ${Math.round(size * 0.17)}px "Plus Jakarta Sans", Arial, sans-serif`;
+            ctx.fillText('++', cx + size * 0.145, cy + size * 0.01);
+
+            return canvas.toDataURL('image/png');
+        }
+
+        /**
+         * Mendaftarkan Web App Manifest dinamis & Service Worker
+         * agar aplikasi memenuhi kriteria instalasi PWA di browser.
+         */
+        function setupPWA() {
+            try {
+                const icon192 = generateCppLogoDataURL(192);
+                const icon512 = generateCppLogoDataURL(512);
+
+                // Pasang Favicon & Apple Touch Icon
+                const favicon = document.getElementById('pwa-favicon');
+                const appleIcon = document.getElementById('pwa-apple-icon');
+                if (favicon) favicon.href = icon192;
+                if (appleIcon) appleIcon.href = icon192;
+
+                // Buat Web App Manifest JSON
+                const startUrl = window.location.href.split('#')[0];
+                const manifestObj = {
+                    name: "BELAJAR C++: MOD, DIV, DAN IF/ELSE",
+                    short_name: "Belajar C++",
+                    description: "Media Pembelajaran Interaktif Persiapan Lomba Pemrograman Dasar C++ SMP",
+                    start_url: startUrl,
+                    scope: "./",
+                    display: "standalone",
+                    orientation: "any",
+                    background_color: "#0f172a",
+                    theme_color: "#0f172a",
+                    categories: ["education", "utilities"],
+                    icons: [
+                        {
+                            src: icon192,
+                            sizes: "192x192",
+                            type: "image/png",
+                            purpose: "any maskable"
+                        },
+                        {
+                            src: icon512,
+                            sizes: "512x512",
+                            type: "image/png",
+                            purpose: "any maskable"
+                        }
+                    ]
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+                const manifestURL = URL.createObjectURL(manifestBlob);
+                const manifestLink = document.getElementById('pwa-manifest-link');
+                if (manifestLink) manifestLink.href = manifestURL;
+
+                // Daftarkan Service Worker jika protokol mendukung (http/https)
+                if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
+                    const swCode = `
+                        const CACHE_NAME = 'belajar-cpp-pwa-v1';
+                        self.addEventListener('install', (event) => {
+                            self.skipWaiting();
+                        });
+                        self.addEventListener('activate', (event) => {
+                            event.waitUntil(self.clients.claim());
+                        });
+                        self.addEventListener('fetch', (event) => {
+                            if (event.request.method !== 'GET') return;
+                            event.respondWith(
+                                fetch(event.request)
+                                    .then((response) => {
+                                        const resClone = response.clone();
+                                        caches.open(CACHE_NAME).then((cache) => {
+                                            cache.put(event.request, resClone).catch(() => {});
+                                        });
+                                        return response;
+                                    })
+                                    .catch(() => caches.match(event.request))
+                            );
+                        });
+                    `;
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swURL = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swURL).catch((err) => {
+                        console.info('Info pendaftaran Service Worker:', err.message);
+                    });
+                }
+            } catch (err) {
+                console.warn('Inisialisasi PWA:', err);
+            }
+        }
+
+        // Tangkap event beforeinstallprompt dari Chrome / Edge / Android
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) {
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('inline-flex');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null;
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) {
+                installBtn.classList.add('hidden');
+                installBtn.classList.remove('inline-flex');
+            }
+            showModal(
+                "Aplikasi Berhasil Diinstal!",
+                "Media pembelajaran <strong>Belajar C++</strong> dengan logo C++ telah terpasang di layar utama perangkatmu.",
+                "check-circle-2"
+            );
+        });
+
+        async function triggerPWAInstall() {
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const { outcome } = await deferredInstallPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    deferredInstallPrompt = null;
+                }
+            } else {
+                // Panduan instalasi manual (misalnya untuk Safari iOS / iPadOS atau jika dibuka dari file lokal)
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    showModal(
+                        "Cara Install di iPhone / iPad",
+                        "Ketuk tombol <strong>Bagikan (Share)</strong> di bilah bawah Safari, lalu pilih <strong>\"Tambah ke Layar Utama\" (Add to Home Screen)</strong> untuk memasang aplikasi berlogo C++.",
+                        "smartphone"
+                    );
+                } else {
+                    showModal(
+                        "Cara Install Aplikasi C++",
+                        "Buka menu browser (ikon titik tiga di pojok kanan atas) lalu pilih <strong>\"Install aplikasi\"</strong> atau <strong>\"Tambahkan ke layar utama\"</strong>.<br><br><span class='text-xs text-slate-500'>Catatan: Pastikan halaman diakses melalui HTTPS atau localhost agar tombol install otomatis aktif.</span>",
+                        "download"
+                    );
+                }
+            }
+        }
+
         function renderAll() {
             renderNavigation();
             renderPageContent();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            setupPWA();
+            // Tampilkan tombol Install jika belum berjalan dalam mode standalone
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (!isStandalone) {
+                const installBtn = document.getElementById('pwa-install-btn');
+                if (installBtn) {
+                    installBtn.classList.remove('hidden');
+                    installBtn.classList.add('inline-flex');
+                }
+            }
             renderAll();
         });
     </script>
